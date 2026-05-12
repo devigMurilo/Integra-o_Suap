@@ -39,13 +39,10 @@ npm start
 ## Anotações
 
 fetch()
-
 faz a requisição
 
 res.json()
-
 transforma JSON em objeto JS
 
 setAluno(data)
-
 guarda os dados no React
