@@ -1,23 +1,25 @@
 import { useEffect, useState } from 'react'
 
 function App() {
-  const [msg, setMsg] = useState('Carregando...')
+  const [aluno, setAluno] = useState('Carregando...')
 
   useEffect(() => {
-    fetch('http://127.0.0.1:8000/api/hello/')
+    fetch('http://127.0.0.1:8000/api/aluno/')
       .then((res) => res.json())
       .then((data) => {
-        setMsg(data.message)
+        setAluno(data)
       })
       .catch((error) => {
         console.error(error)
-        setMsg('Erro ao conectar API')
+        setAluno('Erro ao conectar API')
       })
   }, [])
 
   return (
     <div>
-      <h1>{msg}</h1>
+      <h1>{aluno.nome}</h1>
+      <p>Curso: {aluno.curso}</p>
+      <p>Idade: {aluno.idade}</p>
     </div>
   )
 }
