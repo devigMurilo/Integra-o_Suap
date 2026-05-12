@@ -38,4 +38,14 @@ npm start
 
 ## Anotações
 
-Aqui vou colocando o que for aprendendo...
+fetch()
+
+faz a requisição
+
+res.json()
+
+transforma JSON em objeto JS
+
+setAluno(data)
+
+guarda os dados no React
