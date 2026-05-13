@@ -1,5 +1,5 @@
 import token
-
+import requests
 from django.shortcuts import render
 
 # Create your views here.
@@ -12,29 +12,20 @@ from .serializers import DisciplinaSerializer
 
 from .suap_service import pegar_dados_aluno, autenticar_suap
 
-class DisciplinaViewSet(viewsets.ModelViewSet):
-    queryset = Disciplina.objects.all()
-    serializer_class = DisciplinaSerializer
+
 
 @api_view(['POST'])
 def login_suap(request):
-     matricula = request.data.get('matricula')
-     password = request.data.get('password')
-     
-     auth= autenticar_suap(matricula, password)
-     
-     token = auth.get('token')
-     
-     if not token:
-         return Response({'error': 'login falhou'}, status=401)
+    matricula = request.data.get('username')
+    password = request.data.get('password')
     
-     usuario = pegar_dados_aluno(token)
-     
-     return Response({
-         'token': token,
-         'usuario': usuario
+    acess_token = autenticar_suap(matricula, password)
+    
+    if not acess_token:
+        return Response({'error': 'Falha na autenticação'}, status=400)
+    usuario = pegar_dados_aluno(acess_token.data['token'])
+    return Response({
+        'token': acess_token.data['token'],
+        'usuario': usuario
     })
     
-    
-     
-     

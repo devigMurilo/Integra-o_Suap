@@ -10,7 +10,9 @@ export default function Login() {
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ matricula, password }),
+            body: JSON.stringify({ 
+                username: matricula,
+                password: password }),
         });
 
         const data = await response.json();
@@ -21,10 +23,12 @@ export default function Login() {
 
 
     };
+
     return (
         <div>
             <h1>Login</h1>
             <input
+                type="text"
                 placeholder="matricula"
                 value={matricula}
                 onChange={(e) => setMatricula(e.target.value)}
@@ -38,4 +42,6 @@ export default function Login() {
             <button onClick={login}>Login</button>
         </div>
     );
-            }
+
+}
+
