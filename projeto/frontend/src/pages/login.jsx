@@ -1,7 +1,7 @@
 import { useState } from "react";
 
 export default function Login() {
-    const [username, setUsername] = useState("");
+    const [matricula, setMatricula] = useState("");
     const [password, setPassword] = useState("");
 
     const login = async () => {
@@ -10,7 +10,7 @@ export default function Login() {
             headers: {
                 "Content-Type": "application/json",
             },
-            body: JSON.stringify({ username, password }),
+            body: JSON.stringify({ matricula, password }),
         });
 
         const data = await response.json();
@@ -26,12 +26,13 @@ export default function Login() {
             <h1>Login</h1>
             <input
                 placeholder="matricula"
-                value={username}
-                onChange={(e) => setUsername(e.target.value)}
+                value={matricula}
+                onChange={(e) => setMatricula(e.target.value)}
             />
             <input 
             type="password"
             placeholder="senha"
+            value={password}
             onChange={(e) => setPassword(e.target.value)}
             />
             <button onClick={login}>Login</button>

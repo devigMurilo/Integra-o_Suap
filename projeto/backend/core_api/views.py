@@ -18,12 +18,12 @@ class DisciplinaViewSet(viewsets.ModelViewSet):
 
 @api_view(['POST'])
 def login_suap(request):
-     username = request.data.get('username')
+     matricula = request.data.get('matricula')
      password = request.data.get('password')
      
-     auth= autenticar_suap(username, password)
+     auth= autenticar_suap(matricula, password)
      
-     token = auth.get('access')
+     token = auth.get('token')
      
      if not token:
          return Response({'error': 'login falhou'}, status=401)

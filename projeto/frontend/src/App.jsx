@@ -1,7 +1,7 @@
 import { useEffect, useState } from 'react'
 import Login from './pages/login'
 function App() {
-    return <login />
+    return <Login />
 }
 
 export default App

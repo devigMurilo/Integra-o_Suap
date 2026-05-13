@@ -1,25 +1,55 @@
 import requests
-from getpass import getpass
+from rest_framework.decorators import api_view
+from rest_framework.response import Response
 
 api_url = "https://suap.ifrn.edu.br/api/"
 
-def autenticar_suap(user, password):
-    user = input("user: ")
-    password = getpass()
-
-    data = {"username":user,"password":password}
-
-    response = requests.post(api_url+"v2/autenticacao/token/", json=data)
-    token = response.json()["access"]
-    return token
-
+def autenticar_suap(matricula, password):
+    url = "https://suap.ifrn.edu.br/api/v2/autenticacao/token/"
+    payload = {"username": matricula, "password": password}
+    
+    # Use requests.post, NUNCA chame autenticar_suap() aqui dentro
+    response = requests.post(url, data=payload) 
+    
+    if response.status_code == 200:
+        return {"token": response.json().get("access"), "success": True}
+    return {"error": "Falha", "success": False}
 def pegar_dados_aluno(token):
-    headers = {
-        "Authorization": f'Bearer {token}'
-    }
-    response = requests.get(api_url+"v2/minhas-informacoes/", headers=headers)
-       
-    return response.json()
+    try:
+        url = f"{api_url}/minhas-informacoes/meus-dados/"
+        
+        headers = {
+            "Authorization": f"Bearer {token}"
+        }
+        
+        response = requests.get(url, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return None
+            
+    except Exception as e:
+        print(f"Erro ao obter dados do aluno: {e}")
+        return None
+
+def pegar_notas(token):
+    try:
+        url = f"{api_url}/minhas-informacoes/notas/"
+        
+        headers = {
+            "Authorization": f"Bearer {token}"
+        }
+        
+        response = requests.get(url, headers=headers, timeout=10)
+        
+        if response.status_code == 200:
+            return response.json()
+        else:
+            return None
+            
+    except Exception as e:
+        print(f"Erro ao obter notas do aluno: {e}")
+        return None
 
 
- 

@@ -9,4 +9,5 @@ route.register(r'disciplinas', DisciplinaViewSet)
 urlpatterns = [
     path('login/', login_suap, name='login_suap'),
 ]
-urlpatterns = route.urls
+urlpatterns += route.urls
+
