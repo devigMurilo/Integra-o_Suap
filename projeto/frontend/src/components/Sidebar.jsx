@@ -5,10 +5,10 @@ function Sidebar() {
     const location = useLocation();
 
     const navItems = [
-        { path: "/dashboard", label: "Dashboard", icon: "⊞" },
-        { path: "/notas",     label: "Notas",      icon: "📋" },
-        { path: "/analises",  label: "Análises",   icon: "📈" },
-        { path: "/calendario",label: "Calendário", icon: "📅" },
+        { path: "/Dashboard", label: "Dashboard", icon: "⊞" },
+        { path: "/Boletim",     label: "Notas",      icon: "📋" },
+        { path: "/Analises",  label: "Análises",   icon: "📈" },
+        { path: "/Calendario",label: "Calendário", icon: "📅" },
     ];
 
     return (

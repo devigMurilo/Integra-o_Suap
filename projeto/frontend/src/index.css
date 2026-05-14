@@ -554,3 +554,172 @@ html, body, #root {
   0% { background-position: 200% 0; }
   100% { background-position: -200% 0; }
 }
+
+/* ───────── BOLETIM / NOTAS PAGE ───────── */
+.notas-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.notas-title {
+  font-size: 22px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+}
+
+.notas-subtitle {
+  font-size: 13px;
+  color: var(--text-secondary);
+}
+
+.period-filter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--white);
+  padding: 8px 16px;
+  border-radius: 99px;
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--border);
+}
+
+.period-filter label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.period-filter select {
+  border: none;
+  background: transparent;
+  font-size: 14px;
+  font-weight: 600;
+  color: var(--text);
+  cursor: pointer;
+  outline: none;
+}
+
+.notas-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+  gap: 20px;
+}
+
+.nota-card {
+  background: var(--white);
+  border-radius: 16px;
+  padding: 22px;
+  box-shadow: var(--card-shadow);
+  border: 1px solid var(--border);
+  display: flex;
+  flex-direction: column;
+}
+
+.nota-card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  margin-bottom: 24px;
+}
+
+.nota-subject {
+  font-size: 16px;
+  font-weight: 700;
+  color: var(--text);
+  margin-bottom: 4px;
+  line-height: 1.3;
+}
+
+.nota-prof {
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.nota-units {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 24px;
+}
+
+.nota-unit {
+  flex: 1;
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 10px 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+}
+
+.nota-unit span {
+  font-size: 10px;
+  color: var(--text-secondary);
+  font-weight: 600;
+  text-transform: uppercase;
+}
+
+.nota-unit strong {
+  font-size: 18px;
+  color: var(--text);
+  font-weight: 700;
+}
+
+.nota-faltas {
+  margin-bottom: 24px;
+}
+
+.nota-faltas-header {
+  display: flex;
+  justify-content: space-between;
+  font-size: 11px;
+  color: var(--text-secondary);
+  font-weight: 500;
+  margin-bottom: 8px;
+}
+
+.nota-faltas-bar {
+  height: 6px;
+  background: #f1f5f9;
+  border-radius: 99px;
+  overflow: hidden;
+}
+
+.nota-faltas-fill {
+  height: 100%;
+  border-radius: 99px;
+  transition: width 0.5s ease;
+}
+
+.nota-footer {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+  margin-top: auto;
+}
+
+.nota-media-label {
+  font-size: 12px;
+  color: var(--text-secondary);
+  font-weight: 500;
+}
+
+.nota-media-value {
+  font-size: 26px;
+  font-weight: 700;
+  line-height: 1;
+}
+
+/* Utilities for cards */
+.bg-aprovado { background: var(--success); }
+.bg-atencao { background: var(--warning); }
+.bg-risco { background: var(--danger); }
+
+.text-aprovado { color: var(--success); }
+.text-atencao { color: var(--warning); }
+.text-risco { color: var(--danger); }

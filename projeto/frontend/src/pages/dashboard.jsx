@@ -1,36 +1,91 @@
 import { useState, useEffect } from "react";
 import Sidebar from "../components/Sidebar";
+import { ResponsiveContainer, BarChart, Bar, XAxis, YAxis, Tooltip, Cell } from "recharts";
+
+// Tooltip customizado
+const CustomTooltip = ({ active, payload }) => {
+    if (active && payload && payload.length) {
+        return (
+            <div style={{
+                background: "#2a2d3e",
+                border: "1px solid #3c3f58",
+                borderRadius: "8px",
+                padding: "10px 15px",
+                color: "#fff",
+                boxShadow: "0 4px 6px rgba(0,0,0,0.3)"
+            }}>
+                <p style={{ margin: 0, fontSize: "0.9rem", fontWeight: "bold" }}>
+                    {payload[0].payload.nomeCompleto}
+                </p>
+                <p style={{ margin: 0, marginTop: "4px", fontSize: "0.85rem", color: payload[0].payload.fillColor }}>
+                    Média: {payload[0].value}
+                </p>
+            </div>
+        );
+    }
+    return null;
+};
+
+// Label customizado
+const renderCustomBarLabel = ({ x, y, width, height, value }) => {
+    return (
+        <text 
+            x={x + width + 5} 
+            y={y + height / 2 + 1} 
+            fill="#8b91a5" 
+            dominantBaseline="middle"
+            fontSize={12}
+            fontWeight={600}
+        >
+            {value}
+        </text>
+    );
+};
 
 export default function Dashboard() {
     const [dadosAluno, setDadosAluno] = useState(null);
+    const [boletim, setBoletim] = useState([]);
     const [loading, setLoading] = useState(true);
+    
+    const now = new Date();
+    const anoAtual = now.getFullYear();
+    const periodoAtual = now.getMonth() < 6 ? 1 : 2;
 
     useEffect(() => {
         const token = localStorage.getItem("token");
         if (token) {
-            fetch("http://localhost:8000/api/dados-aluno/", {
-                method: "GET",
-                headers: {
-                    "Content-Type": "application/json",
-                    "Authorization": `Bearer ${token}`
+            Promise.all([
+                fetch("http://localhost:8000/api/dados-aluno/", {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    }
+                }).then(r => r.ok ? r.json() : null),
+                fetch(`http://localhost:8000/api/meu-boletim/${anoAtual}/${periodoAtual}/`, {
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`
+                    }
+                }).then(r => r.ok ? r.json() : null)
+            ])
+            .then(([dadosAlunoData, boletimData]) => {
+                if (dadosAlunoData) setDadosAluno(dadosAlunoData);
+                
+                if (boletimData && boletimData.results) {
+                    setBoletim(boletimData.results);
+                } else if (Array.isArray(boletimData)) {
+                    setBoletim(boletimData);
                 }
+                setLoading(false);
             })
-                .then(response => {
-                    if (!response.ok) throw new Error('Falha ao buscar dados do aluno');
-                    return response.json();
-                })
-                .then(data => {
-                    setDadosAluno(data);
-                    setLoading(false);
-                })
-                .catch(error => {
-                    console.error('Erro:', error);
-                    setLoading(false);
-                });
+            .catch(error => {
+                console.error('Erro:', error);
+                setLoading(false);
+            });
         } else {
             setLoading(false);
         }
-    }, []);
+    }, [anoAtual, periodoAtual]);
 
     const getInitials = (name) => {
         if (!name) return "?";
@@ -39,13 +94,29 @@ export default function Dashboard() {
 
     const initials = getInitials(dadosAluno?.nome);
 
-    // Dados de exemplo para a tabela (quando tiver boletim, substituir)
-    const disciplinasExemplo = [
-        { nome: "Programação Web",       u1: 85, u2: 90, faltas: "2%", status: "aprovado" },
-        { nome: "Banco de Dados",        u1: 75, u2: 70, faltas: "5%", status: "atencao" },
-        { nome: "Redes de Computadores", u1: 55, u2: 60, faltas: "8%", status: "risco" },
-        { nome: "Engenharia de Software", u1: 88, u2: 92, faltas: "1%", status: "aprovado" },
-    ];
+    // Preparando dados para o gráfico
+    const chartData = (boletim || []).map(item => {
+        let score = item.media_disciplina ?? item.media_final_disciplina;
+        if (score === null || score === undefined || score === "--") {
+            const u1 = item.nota_etapa_1?.nota ? Number(item.nota_etapa_1.nota) : 0;
+            const u2 = item.nota_etapa_2?.nota ? Number(item.nota_etapa_2.nota) : 0;
+            score = Math.max(u1, u2);
+        }
+        
+        let val = Number(score) || 0;
+        const nomeCompleto = item.nome_disciplina || item.disciplina || "Disciplina";
+        const name = nomeCompleto.length > 15 ? nomeCompleto.substring(0, 15) + "..." : nomeCompleto;
+        
+        let fillColor = "#FD397A"; // red
+        if (val >= 60) fillColor = "#00C9A7"; // green
+        else if (val >= 40) fillColor = "#FFB822"; // yellow
+
+        return { nomeCompleto, name, media: val, fillColor };
+    });
+
+    const averageScore = chartData.length > 0 
+        ? Math.round(chartData.reduce((acc, curr) => acc + curr.media, 0) / chartData.length)
+        : 0;
 
     return (
         <div className="app-layout">
@@ -108,26 +179,26 @@ export default function Dashboard() {
                     <div className="stats-grid">
                         <div className="stat-card">
                             <div className="stat-card-left">
-                                <div className="stat-label">CR Atual</div>
-                                <div className="stat-value">8.5</div>
-                                <div className="stat-sub">↑ 0.2 vs período anterior</div>
+                                <div className="stat-label">I.R.A</div>
+                                <div className="stat-value">{dadosAluno?.ira ?? "—"}</div>
                             </div>
                             <div className="stat-icon">🎓</div>
                         </div>
 
                         <div className="stat-card">
                             <div className="stat-card-left">
-                                <div className="stat-label">Créditos</div>
-                                <div className="stat-value">120/180</div>
-                                <div className="stat-sub">66% concluído</div>
+                                <div className="stat-label">Período Atual</div>
+                                <div className="stat-value">{dadosAluno?.periodo_atual ?? `${anoAtual}.${periodoAtual}`}</div>
                             </div>
                             <div className="stat-icon">📖</div>
                         </div>
 
                         <div className="stat-card">
                             <div className="stat-card-left">
-                                <div className="stat-label">Taxa de Aprovação</div>
-                                <div className="stat-value">95%</div>
+                                <div className="stat-label">Situação</div>
+                                <div className="stat-value" style={{fontSize: "1.2rem", textTransform: "capitalize"}}>
+                                    {dadosAluno?.situacao?.toLowerCase() ?? "—"}
+                                </div>
                             </div>
                             <div className="stat-icon">✅</div>
                         </div>
@@ -135,7 +206,7 @@ export default function Dashboard() {
                         <div className="stat-card">
                             <div className="stat-card-left">
                                 <div className="stat-label">Disciplinas</div>
-                                <div className="stat-value">6</div>
+                                <div className="stat-value">{boletim?.length || 0}</div>
                                 <div className="stat-sub">Cursando agora</div>
                             </div>
                             <div className="stat-icon">📚</div>
@@ -164,61 +235,85 @@ export default function Dashboard() {
                                     </tr>
                                 </thead>
                                 <tbody>
-                                    {disciplinasExemplo.map((d, i) => (
-                                        <tr key={i}>
-                                            <td>{d.nome}</td>
-                                            <td>{d.u1}</td>
-                                            <td>{d.u2}</td>
-                                            <td>{d.faltas}</td>
-                                            <td>
-                                                <span className={`status-badge status-${d.status}`}>
-                                                    {d.status === "aprovado" ? "Aprovado" :
-                                                     d.status === "atencao" ? "Atenção" : "Risco"}
-                                                </span>
+                                    {boletim && boletim.length > 0 ? (
+                                        boletim.map((item, idx) => {
+                                            const nomeDisciplina = item.nome_disciplina || item.disciplina || "Disciplina";
+                                            const u1 = item.nota_etapa_1?.nota ?? "--";
+                                            const u2 = item.nota_etapa_2?.nota ?? "--";
+                                            const faltas = item.numero_faltas ?? 0;
+                                            const situacao = item.situacao || "Cursando";
+                                            
+                                            // Determine badge color
+                                            let badgeClass = "status-risco";
+                                            const s = situacao.toLowerCase();
+                                            if (s.includes("aprovado")) badgeClass = "status-aprovado";
+                                            else if (s.includes("cursando") || s.includes("matriculado")) badgeClass = "status-atencao";
+
+                                            return (
+                                                <tr key={idx}>
+                                                    <td>{nomeDisciplina}</td>
+                                                    <td>{u1}</td>
+                                                    <td>{u2}</td>
+                                                    <td>{faltas}</td>
+                                                    <td>
+                                                        <span className={`status-badge ${badgeClass}`}>
+                                                            {situacao}
+                                                        </span>
+                                                    </td>
+                                                </tr>
+                                            );
+                                        })
+                                    ) : (
+                                        <tr>
+                                            <td colSpan="5" style={{textAlign: "center", padding: "20px"}}>
+                                                Nenhum dado encontrado para o período atual.
                                             </td>
                                         </tr>
-                                    ))}
+                                    )}
                                 </tbody>
                             </table>
                         </div>
 
-                        {/* CR Evolution */}
+                        {/* Performance Chart */}
                         <div className="cr-card">
-                            <div className="cr-card-title">Evolução do CR</div>
-                            <div className="cr-card-sub">Últimos 5 períodos</div>
-                            <div className="cr-big-value">8.5</div>
-                            <div className="cr-chart">
-                                <svg viewBox="0 0 200 80" preserveAspectRatio="none">
-                                    {/* Grid lines */}
-                                    <line x1="0" y1="0" x2="200" y2="0" stroke="#f0f0f0" strokeWidth="0.5"/>
-                                    <line x1="0" y1="20" x2="200" y2="20" stroke="#f0f0f0" strokeWidth="0.5"/>
-                                    <line x1="0" y1="40" x2="200" y2="40" stroke="#f0f0f0" strokeWidth="0.5"/>
-                                    <line x1="0" y1="60" x2="200" y2="60" stroke="#f0f0f0" strokeWidth="0.5"/>
-                                    <line x1="0" y1="80" x2="200" y2="80" stroke="#f0f0f0" strokeWidth="0.5"/>
-                                    {/* Area fill */}
-                                    <path
-                                        d="M0,60 L50,45 L100,35 L150,20 L200,15 L200,80 L0,80 Z"
-                                        fill="url(#crGradient)" opacity="0.3"
-                                    />
-                                    {/* Line */}
-                                    <polyline
-                                        points="0,60 50,45 100,35 150,20 200,15"
-                                        fill="none" stroke="#00C9A7" strokeWidth="2"
-                                        strokeLinecap="round" strokeLinejoin="round"
-                                    />
-                                    {/* Dots */}
-                                    <circle cx="0"   cy="60" r="3" fill="#00C9A7"/>
-                                    <circle cx="50"  cy="45" r="3" fill="#00C9A7"/>
-                                    <circle cx="100" cy="35" r="3" fill="#00C9A7"/>
-                                    <circle cx="150" cy="20" r="3" fill="#00C9A7"/>
-                                    <circle cx="200" cy="15" r="3" fill="#00C9A7"/>
-                                    <defs>
-                                        <linearGradient id="crGradient" x1="0" x2="0" y1="0" y2="1">
-                                            <stop offset="0%" stopColor="#00C9A7" stopOpacity="0.4"/>
-                                            <stop offset="100%" stopColor="#00C9A7" stopOpacity="0"/>
-                                        </linearGradient>
-                                    </defs>
-                                </svg>
+                            <div className="cr-card-title">Média por Disciplina</div>
+                            <div className="cr-card-sub">Suas notas neste período</div>
+                            <div className="cr-chart" style={{ height: 'auto', paddingTop: '20px' }}>
+                                {chartData.length > 0 ? (
+                                    <ResponsiveContainer width="100%" height={Math.max(200, chartData.length * 40)}>
+                                        <BarChart
+                                            data={chartData}
+                                            layout="vertical"
+                                            margin={{ top: 5, right: 30, left: 10, bottom: 5 }}
+                                            barSize={12}
+                                        >
+                                            <XAxis type="number" domain={[0, 100]} hide />
+                                            <YAxis 
+                                                type="category" 
+                                                dataKey="name" 
+                                                axisLine={false} 
+                                                tickLine={false} 
+                                                tick={{ fill: '#8b91a5', fontSize: 12, fontWeight: 500 }}
+                                                width={110}
+                                            />
+                                            <Tooltip cursor={{fill: 'rgba(255, 255, 255, 0.05)'}} content={<CustomTooltip />} />
+                                            <Bar 
+                                                dataKey="media" 
+                                                radius={[0, 4, 4, 0]}
+                                                animationDuration={1500}
+                                                label={renderCustomBarLabel}
+                                            >
+                                                {chartData.map((entry, index) => (
+                                                    <Cell key={`cell-${index}`} fill={entry.fillColor} />
+                                                ))}
+                                            </Bar>
+                                        </BarChart>
+                                    </ResponsiveContainer>
+                                ) : (
+                                    <div style={{color: '#8b91a5', textAlign: 'center', padding: '20px 0'}}>
+                                        Nenhuma nota disponível
+                                    </div>
+                                )}
                             </div>
                         </div>
                     </div>

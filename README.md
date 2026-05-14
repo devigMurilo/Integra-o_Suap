@@ -46,3 +46,6 @@ transforma JSON em objeto JS
 
 setAluno(data)
 guarda os dados no React
+
+*data 2026 - 5 - 14:
+adicionei muita coisa nova aqui com a IA. nova biblioteca para criação de graficos rechart.js. ficou legal o dashboard acho que ja tem bastante coisa.
