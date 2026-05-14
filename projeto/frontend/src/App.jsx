@@ -12,6 +12,9 @@ function App() {
         <Route path="/" element={<Login />} />
         <Route path="/dashboard" element={<Dashboard />} />
         <Route path="/Boletim" element={<Boletim />} />
+        <Route path="/Calendario" element={<Calendario />} />
+        <Route path="/Analises" element={<Analises />} />
+
       </Routes>
     </BrowserRouter>
   );
