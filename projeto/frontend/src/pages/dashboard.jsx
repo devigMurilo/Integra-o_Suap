@@ -1,8 +1,12 @@
 import { useState, useEffect } from "react";
+import Sidebar from "../components/Sidebar";
+
 
 
 export default function Dashboard() {
     const [dadosAluno, setDadosAluno] = useState(null);
+
+
 
     useEffect(() => {
         const token = localStorage.getItem("token");
@@ -34,9 +38,14 @@ export default function Dashboard() {
             <h1>Dashboard</h1>
             {dadosAluno && (
                 <div>
+                    <img src={dadosAluno.foto} alt="" />
                     <p>Nome: {dadosAluno.nome}</p>
                     <p>Matrícula: {dadosAluno.matricula}</p>
                     <p>Curso: {dadosAluno.curso}</p>
+                    <p>Email Acadêmico: {dadosAluno.email_academico}</p>
+                    <p>Email Pessoal: {dadosAluno.email_pessoal}</p>
+                    <p>Campus:{dadosAluno.campus}</p>
+                    <p>Situação:{dadosAluno.situacao}</p>
                 </div>
             )}
         </div>

@@ -4,8 +4,7 @@ from django.shortcuts import render
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .suap_service import pegar_dados_aluno
-from .suap_service import autenticar_suap
+from .suap_service import autenticar_suap, meu_boletim, pegar_dados_aluno
 
 
 
@@ -40,4 +39,21 @@ def dados_aluno_view(request):
     usuario = pegar_dados_aluno(token)
 
     return Response(usuario)
+
+@api_view(['GET'])
+def meu_boletim_view(request, ano_letivo, periodo_letivo):
+
+    token = request.headers.get('Authorization')
+
+    if not token:
+        return Response(
+            {'error': 'Token não fornecido'},
+            status=400
+        )
+
+    token = token.replace("Bearer ", "")
+
+    boletim = meu_boletim(token, ano_letivo, periodo_letivo)
+
+    return Response(boletim)
 

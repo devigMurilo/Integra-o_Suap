@@ -1,10 +1,10 @@
 import requests
 
-API_URL = "https://suap.ifrn.edu.br/api/v2/"
+API_URL = "https://suap.ifrn.edu.br/api/"
 
 def autenticar_suap(matricula, password):
 
-    token_url = API_URL + "token/pair"
+    token_url = API_URL + "/token/pair"
 
     data = {
         "username": matricula,
@@ -35,22 +35,52 @@ def pegar_dados_aluno(access_token):
         "Authorization": f"Bearer {access_token}"
     }
 
-    response = requests.get(
-        API_URL + "minhas-informacoes/meus-dados/",
+    # Pegar dados de usuário (foto, nome, matricula, campus, email pessoal)
+    res_eu = requests.get(
+        API_URL + "rh/eu/",
+        headers=headers
+    )
+    
+    # Pegar dados de ensino (curso, situacao, email academico)
+    res_ensino = requests.get(
+        API_URL + "ensino/meus-dados-aluno/",
         headers=headers
     )
 
-    print("STATUS:")
-    print(response.status_code)
+    dados_eu = res_eu.json() if res_eu.status_code == 200 else {}
+    dados_ensino = res_ensino.json() if res_ensino.status_code == 200 else {}
 
-    print("TEXTO:")
+    # Construindo o objeto que o frontend espera
+    usuario = {
+        "foto": dados_eu.get("foto"),
+        "nome": dados_eu.get("nome_usual") or dados_eu.get("nome"),
+        "matricula": dados_eu.get("identificacao"),
+        "campus": dados_eu.get("campus"),
+        "email_pessoal": dados_eu.get("email_secundario"),
+        
+        "curso": dados_ensino.get("curso"),
+        "situacao": dados_ensino.get("situacao"),
+        "email_academico": dados_ensino.get("email_academico"),
+    }
+
+    # Tratamento para foto caso seja um path relativo
+    if usuario["foto"] and usuario["foto"].startswith("/"):
+        usuario["foto"] = "https://suap.ifrn.edu.br" + usuario["foto"]
+
+    return usuario
+
+def meu_boletim(access_token, ano_letivo, periodo_letivo):
+
+    headers = {
+        "Authorization": f"Bearer {access_token}"
+    }
+
+    response = requests.get(
+        API_URL + f"ensino/meu-boletim/{ano_letivo}/{periodo_letivo}/",
+        headers=headers
+    )
+
+    print(response.status_code)
     print(response.text)
 
-    try:
-        return response.json()
-    except Exception as e:
-        return {
-            "erro": "Resposta não é JSON",
-            "status": response.status_code,
-            "texto": response.text
-        }
+    return response.json()
