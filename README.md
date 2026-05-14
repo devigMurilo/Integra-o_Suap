@@ -1,6 +1,6 @@
 # Estudos Django REST + React
 
-Repositório onde estou começando a estudar API com Django REST Framework e React.js. E ao final desse repositorio eu vou ter desenvolvido um projeto utilzando a  api do saup. utilizando esa api vou desenvolver o SUAP Analytics Dashboard, Plataforma web que transforma os dados do SUAP em insights visuais e análises inteligentes do desempenho acadêmico.
+Repositório onde estou começando a estudar API com Django REST Framework e React.js. E ao final desse repositorio eu vou ter desenvolvido um projeto utilzando a  api do saup. utilizando esa api vou desenvolver o SuapHUB, Plataforma web que transforma os dados do SUAP em insights visuais e análises inteligentes do desempenho acadêmico.
 
 ## Tecnologias
 
