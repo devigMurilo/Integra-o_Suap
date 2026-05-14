@@ -35,13 +35,11 @@ def pegar_dados_aluno(access_token):
         "Authorization": f"Bearer {access_token}"
     }
 
-    # Pegar dados de usuário (foto, nome, matricula, campus, email pessoal)
     res_eu = requests.get(
         API_URL + "rh/eu/",
         headers=headers
     )
     
-    # Pegar dados de ensino (curso, situacao, email academico)
     res_ensino = requests.get(
         API_URL + "ensino/meus-dados-aluno/",
         headers=headers

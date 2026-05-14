@@ -132,24 +132,7 @@ export default function Login() {
                         {loading ? "Entrando..." : "Entrar"}
                     </button>
                 </form>
-
-                {/* Divider */}
-                <div className="divider">
-                    <span>OU</span>
-                </div>
-
-                {/* Footer */}
-                <div className="login-footer">
-                    <p>
-                        Esqueceu a senha?{" "}
-                        <a href="/forgot-password">Recuperar acesso</a>
-                    </p>
-                    <p>
-                        Não tem conta?{" "}
-                        <a href="/register">Crie uma agora</a>
-                    </p>
-                </div>
             </div>
         </div>
     );
-}
+}  
