@@ -3,7 +3,10 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import Login from './pages/Login';
 import Dashboard from './pages/dashboard';
 import Boletim from './pages/boletim';
+import Calendario from './pages/Calendario';
+import Analises from './pages/Analises';
 import './App.css';
+
 
 function App() {
   return (
