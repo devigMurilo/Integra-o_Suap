@@ -6,9 +6,10 @@ function Sidebar() {
 
     const navItems = [
         { path: "/Dashboard", label: "Dashboard", icon: "⊞" },
-        { path: "/Boletim",     label: "Notas",      icon: "📋" },
-        { path: "/Analises",  label: "Análises",   icon: "📈" },
-        { path: "/Calendario",label: "Calendário", icon: "📅" },
+        { path: "/Boletim", label: "Notas", icon: "📋" },
+        { path: "/Analises", label: "Análises", icon: "📈" },
+        { path: "/Calendario", label: "Calendário", icon: "📅" },
+        { path: "/Perfil", label: "Perfil", icon: "👤" }
     ];
 
     return (
