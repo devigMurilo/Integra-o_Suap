@@ -723,3 +723,240 @@ html, body, #root {
 .text-aprovado { color: var(--success); }
 .text-atencao { color: var(--warning); }
 .text-risco { color: var(--danger); }
+
+/* ───────── PERFIL — LISTA DE INFORMAÇÕES ───────── */
+.info-list {
+  padding: 0 20px 16px;
+}
+
+/* Dentro do .cr-card o padding já vem do próprio card */
+.cr-card .info-list {
+  padding: 0;
+}
+
+.info-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 11px 0;
+  border-bottom: 1px solid var(--border);
+  font-size: 13px;
+}
+
+.info-row:last-child {
+  border-bottom: none;
+}
+
+.info-label {
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+.info-value {
+  font-weight: 600;
+  color: var(--text);
+  text-align: right;
+  word-break: break-word;
+}
+
+/* ───────── CALENDÁRIO ───────── */
+.cal-nav {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  flex-shrink: 0;
+}
+
+.cal-nav button {
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  color: var(--text-secondary);
+  cursor: pointer;
+  font-family: inherit;
+  font-size: 13px;
+  font-weight: 600;
+  padding: 5px 11px;
+  transition: all 0.15s;
+}
+
+.cal-nav button:hover {
+  background: var(--primary-light);
+  border-color: var(--primary);
+  color: var(--primary-dark);
+}
+
+.cal-grid-wrapper {
+  padding: 0 20px 18px;
+}
+
+.cal-weekdays,
+.cal-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+}
+
+.cal-weekday {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-secondary);
+  text-align: center;
+  padding-bottom: 8px;
+  text-transform: uppercase;
+  letter-spacing: 0.03em;
+}
+
+.cal-day {
+  aspect-ratio: 1;
+  background: var(--white);
+  border: 1px solid var(--border);
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  font-family: inherit;
+  padding: 4px;
+  transition: all 0.15s;
+}
+
+.cal-day:hover {
+  border-color: var(--primary);
+  background: var(--primary-light);
+}
+
+.cal-day-empty {
+  background: transparent;
+  border-color: transparent;
+  cursor: default;
+}
+
+.cal-day-empty:hover {
+  background: transparent;
+  border-color: transparent;
+}
+
+.cal-day-num {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+  line-height: 1;
+}
+
+.cal-day-hoje {
+  border-color: var(--primary);
+}
+
+.cal-day-hoje .cal-day-num {
+  color: var(--primary-dark);
+}
+
+.cal-day-selecionado {
+  background: var(--primary);
+  border-color: var(--primary);
+}
+
+.cal-day-selecionado .cal-day-num {
+  color: var(--white);
+}
+
+.cal-day-selecionado:hover {
+  background: var(--primary-dark);
+}
+
+.cal-dots {
+  display: flex;
+  gap: 3px;
+  min-height: 6px;
+}
+
+.cal-dot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  display: inline-block;
+}
+
+.cal-dot-aula { background: var(--accent); }
+.cal-dot-avaliacao { background: var(--danger); }
+.cal-dot-academico { background: var(--warning); }
+
+.cal-legenda {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 14px;
+  padding-top: 14px;
+  font-size: 12px;
+  color: var(--text-secondary);
+}
+
+.cal-legenda > span {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+/* Painel lateral de eventos */
+.cal-eventos {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  margin-top: 4px;
+}
+
+.cal-evento {
+  border-left: 3px solid var(--border);
+  border-radius: 0 8px 8px 0;
+  background: var(--bg);
+  padding: 10px 12px;
+}
+
+.cal-evento-aula { border-left-color: var(--accent); }
+.cal-evento-avaliacao { border-left-color: var(--danger); }
+.cal-evento-academico { border-left-color: var(--warning); }
+
+.cal-evento-topo {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.cal-evento-titulo {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text);
+}
+
+.cal-evento-detalhe {
+  font-size: 12px;
+  color: var(--text-secondary);
+  margin-top: 4px;
+  line-height: 1.5;
+}
+
+.cal-evento-meta {
+  font-size: 11px;
+  color: var(--text-secondary);
+  margin-top: 6px;
+}
+
+.cal-tag-aula { background: #dbeafe; color: #1e40af; }
+.cal-tag-avaliacao { background: #fee2e2; color: #991b1b; }
+.cal-tag-academico { background: #fef3c7; color: #92400e; }
+
+.cal-proximas {
+  margin-top: 18px;
+  padding-top: 16px;
+  border-top: 1px solid var(--border);
+}
+
+.cal-vazio {
+  font-size: 13px;
+  color: var(--text-secondary);
+  margin-top: 8px;
+}

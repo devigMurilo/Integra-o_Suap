@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import "./login.css";
+import "./Login.css";
 
 export default function Login() {
     const [matricula, setMatricula] = useState("");
@@ -8,6 +8,13 @@ export default function Login() {
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState("");
     const [success, setSuccess] = useState("");
+
+    // O CSS de fundo do login é aplicado no body; a classe só existe nesta tela
+    // para não vazar o layout centralizado para as páginas internas.
+    useEffect(() => {
+        document.body.classList.add("login-page");
+        return () => document.body.classList.remove("login-page");
+    }, []);
 
     const handleLogin = async (e) => {
         e.preventDefault();
@@ -48,7 +55,7 @@ export default function Login() {
 
             // Redirecionar após 2 segundos
             setTimeout(() => {
-                window.location.href = "/dashboard";
+                window.location.href = "/Dashboard";
             }, 2000);
 
         } catch (err) {
