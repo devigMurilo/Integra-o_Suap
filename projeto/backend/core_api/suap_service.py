@@ -1,5 +1,6 @@
 import requests
 import json
+from datetime import datetime
 
 API_URL = "https://suap.ifrn.edu.br/api/"
 
@@ -202,4 +203,215 @@ def meu_boletim(access_token, ano_letivo, periodo_letivo):
         if not item.get("nome_disciplina"):
             item["nome_disciplina"] = item.get("disciplina", "Disciplina")
 
-    return {"results": results}
+    return {"results": results}
+
+def _normalizar_data(valor):
+    """
+    O SUAP devolve datas em formatos diferentes dependendo do endpoint
+    ("dd/mm/aaaa", "aaaa-mm-dd", com ou sem hora). Aqui tudo vira "aaaa-mm-dd"
+    para o frontend não precisar adivinhar.
+    """
+    if not valor or not isinstance(valor, str):
+        return None
+
+    texto = valor.strip()
+    if not texto:
+        return None
+
+    # Corta a hora, se vier junto
+    texto = texto.replace("T", " ").split(" ")[0]
+
+    formatos = ["%d/%m/%Y", "%Y-%m-%d", "%d-%m-%Y", "%d/%m/%y"]
+    for formato in formatos:
+        try:
+            return datetime.strptime(texto, formato).strftime("%Y-%m-%d")
+        except ValueError:
+            continue
+
+    return None
+
+
+def _buscar_paginado(url, access_token, rotulo, max_paginas=20):
+    """
+    Os endpoints de aulas/avaliações são paginados (10 itens por página).
+    Sem percorrer as páginas o mês vem cortado no meio.
+    """
+    headers = {
+        "Authorization": f"Bearer {access_token}"
+    }
+
+    itens = []
+    pagina = 1
+
+    while pagina <= max_paginas:
+        response = requests.get(url, headers=headers, params={"page": pagina})
+
+        print(f"[{rotulo}] página {pagina} status: {response.status_code}")
+
+        if response.status_code != 200:
+            break
+
+        data = response.json()
+
+        if not isinstance(data, dict):
+            itens.extend(data or [])
+            break
+
+        resultados = data.get("results", [])
+        itens.extend(resultados)
+
+        # Sem próxima página ou página vazia: acabou
+        if not data.get("next") or not resultados:
+            break
+
+        pagina += 1
+
+    return itens
+
+
+def minhas_aulas(access_token, ano, mes):
+    """
+    Aulas registradas no mês. AulaAlunoSchema:
+    { id, etapa, conteudo, data, qtd_aulas, faltas, disciplina }
+    """
+    items = _buscar_paginado(
+        API_URL + f"ensino/minhas-aulas/{ano}/{mes}/",
+        access_token,
+        "minhas_aulas"
+    )
+
+    aulas = []
+    for item in items or []:
+        if not isinstance(item, dict):
+            continue
+        aulas.append({
+            "id": item.get("id"),
+            "tipo": "aula",
+            "data": _normalizar_data(item.get("data")),
+            "disciplina": item.get("disciplina") or "Disciplina",
+            "conteudo": item.get("conteudo") or "",
+            "etapa": item.get("etapa") or "",
+            "qtd_aulas": item.get("qtd_aulas") or 0,
+            "faltas": item.get("faltas") or 0,
+        })
+
+    return aulas
+
+
+def proximas_avaliacoes(access_token):
+    """
+    Avaliações agendadas. ItemConfiguracaoAvaliacaoSchema:
+    { id, tipo, sigla, descricao, data, nota_maxima, peso, diario, etapa }
+    """
+    items = _buscar_paginado(
+        API_URL + "ensino/minhas-proximas-avaliacoes/",
+        access_token,
+        "proximas_avaliacoes"
+    )
+
+    avaliacoes = []
+    for item in items or []:
+        if not isinstance(item, dict):
+            continue
+        avaliacoes.append({
+            "id": item.get("id"),
+            "tipo": "avaliacao",
+            "data": _normalizar_data(item.get("data")),
+            "disciplina": item.get("diario") or "",
+            "sigla": item.get("sigla") or "",
+            "descricao": item.get("descricao") or "",
+            "etapa": item.get("etapa") or "",
+            "nota_maxima": item.get("nota_maxima"),
+            "peso": item.get("peso"),
+        })
+
+    return avaliacoes
+
+
+def calendario_academico(access_token, ano, periodo_letivo):
+    """
+    Marcos do período letivo (início/fim de etapas, fechamento, trancamento).
+    Vira uma lista simples de eventos para o frontend só renderizar.
+    """
+    headers = {
+        "Authorization": f"Bearer {access_token}"
+    }
+
+    # O calendário do IFRN é anual: fica publicado só no período 1.
+    # Pedindo o período 2 a API responde 200 com "null", então tentamos os dois.
+    periodos = [periodo_letivo]
+    if int(periodo_letivo) != 1:
+        periodos.append(1)
+
+    dados = None
+    for periodo in periodos:
+        response = requests.get(
+            API_URL + f"ensino/meu-calendario-academico/{ano}/{periodo}/",
+            headers=headers
+        )
+
+        print(f"[calendario_academico] {ano}.{periodo} status: {response.status_code}")
+
+        if response.status_code != 200:
+            continue
+
+        payload = response.json()
+        if isinstance(payload, dict):
+            dados = payload
+            break
+
+    if not dados:
+        return []
+
+    # Campo do schema -> rótulo mostrado na tela
+    marcos = [
+        ("data_inicio", "Início do período letivo"),
+        ("data_fim", "Fim do período letivo"),
+        ("data_inicio_etapa_1", "Início da 1ª etapa"),
+        ("data_fim_etapa_1", "Fim da 1ª etapa"),
+        ("data_inicio_etapa_2", "Início da 2ª etapa"),
+        ("data_fim_etapa_2", "Fim da 2ª etapa"),
+        ("data_inicio_etapa_3", "Início da 3ª etapa"),
+        ("data_fim_etapa_3", "Fim da 3ª etapa"),
+        ("data_inicio_etapa_4", "Início da 4ª etapa"),
+        ("data_fim_etapa_4", "Fim da 4ª etapa"),
+        ("data_inicio_trancamento", "Início do trancamento"),
+        ("data_fim_trancamento", "Fim do trancamento"),
+        ("data_fechamento_periodo", "Fechamento do período"),
+    ]
+
+    eventos = []
+    for campo, rotulo in marcos:
+        data = _normalizar_data(dados.get(campo))
+        if data:
+            eventos.append({
+                "id": f"{campo}-{data}",
+                "tipo": "academico",
+                "data": data,
+                "titulo": rotulo,
+                "descricao": dados.get("descricao") or "",
+            })
+
+    return eventos
+
+
+def meu_calendario(access_token, ano, mes):
+    """
+    Junta aulas do mês, avaliações e marcos do calendário acadêmico
+    num payload só, para a página Calendário fazer uma requisição apenas.
+    """
+    mes_int = int(mes)
+    periodo_letivo = 1 if mes_int <= 6 else 2
+
+    aulas = minhas_aulas(access_token, ano, mes)
+    avaliacoes = proximas_avaliacoes(access_token)
+    academico = calendario_academico(access_token, ano, periodo_letivo)
+
+    return {
+        "ano": int(ano),
+        "mes": mes_int,
+        "periodo_letivo": periodo_letivo,
+        "aulas": aulas,
+        "avaliacoes": avaliacoes,
+        "academico": academico,
+    }

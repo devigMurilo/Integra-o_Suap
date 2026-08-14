@@ -4,7 +4,7 @@ from django.shortcuts import render
 
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
-from .suap_service import autenticar_suap, meu_boletim, pegar_dados_aluno
+from .suap_service import autenticar_suap, meu_boletim, pegar_dados_aluno, meu_calendario
 
 
 
@@ -56,4 +56,21 @@ def meu_boletim_view(request, ano_letivo, periodo_letivo):
     boletim = meu_boletim(token, ano_letivo, periodo_letivo)
 
     return Response(boletim)
+
+@api_view(['GET'])
+def meu_calendario_view(request, ano, mes):
+
+    token = request.headers.get('Authorization')
+
+    if not token:
+        return Response(
+            {'error': 'Token não fornecido'},
+            status=400
+        )
+
+    token = token.replace("Bearer ", "")
+
+    calendario = meu_calendario(token, ano, mes)
+
+    return Response(calendario)
 

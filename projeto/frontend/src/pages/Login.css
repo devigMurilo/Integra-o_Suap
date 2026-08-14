@@ -28,7 +28,7 @@
     box-sizing: border-box;
 }
 
-body {
+body.login-page {
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
     background: linear-gradient(135deg, #0f172a 0%, #1a1f3a 50%, #16213e 100%);
     color: var(--text-primary);
@@ -41,7 +41,7 @@ body {
 }
 
 /* Fundo Animado com Blobs */
-body::before {
+body.login-page::before {
     content: "";
     position: fixed;
     top: -50%;
@@ -418,7 +418,7 @@ body::before {
         font-size: 0.95rem;
     }
 
-    body::before {
+    body.login-page::before {
         animation: none;
         background: radial-gradient(circle at 20% 50%, rgba(99, 102, 241, 0.08) 0%, transparent 50%),
             radial-gradient(circle at 80% 80%, rgba(236, 72, 153, 0.08) 0%, transparent 50%);
@@ -454,7 +454,7 @@ body::before {
         --border: #cbd5e1;
     }
 
-    body {
+    body.login-page {
         background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 50%, #e0f2fe 100%);
     }
 
@@ -500,7 +500,7 @@ body::before {
         transition-duration: 0.01ms !important;
     }
 
-    body::before {
+    body.login-page::before {
         animation: none;
     }
 }
